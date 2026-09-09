@@ -648,7 +648,16 @@
                 body: formData
             });
 
-            const result = await response.json();
+            const rawText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(rawText);
+            } catch (parseErr) {
+                throw new Error(
+                    'Server did not return JSON. Raw response: ' +
+                    (rawText ? rawText.slice(0, 200) : '(empty response)')
+                );
+            }
 
             if (!response.ok || !result.success) {
                 throw new Error(result.error || 'Submission failed');
