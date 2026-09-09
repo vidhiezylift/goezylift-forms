@@ -620,7 +620,7 @@
 
     /* ---------- CONFIG ---------- */
     // Paste your Google Apps Script "Web app" URL here (ends in /exec)
-    const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxcShB0O95lLtzpgd6CajwIvOia0eDNImeYl1kpiLsbqTw6e6FLXT4MOQM4jimzjLlBDA/exec';
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const ALLOWED_EXT = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
 
@@ -762,7 +762,16 @@
                 body: formData
             });
 
-            const result = await response.json();
+            const rawText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(rawText);
+            } catch (parseErr) {
+                throw new Error(
+                    'Server did not return JSON. Raw response: ' +
+                    (rawText ? rawText.slice(0, 200) : '(empty response)')
+                );
+            }
 
             if (!response.ok || !result.success) {
                 throw new Error(result.error || 'Submission failed');
